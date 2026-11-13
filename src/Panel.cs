@@ -72,7 +72,7 @@ public sealed class Panel : MonoBehaviour
         if(Mathf.Abs(value-entry.Value)>.001f)entry.Value=value;
     }
     internal static void Hook(Harmony h,Type target,string method,Type owner,string before=null,string after=null){
-        var original=AccessTools.DeclaredMethod(target,method)??throw new MissingMethodException(target.FullName,method);
+        var original=(AccessTools.DeclaredMethod(target,method)??AccessTools.Method(target,method))??throw new MissingMethodException(target.FullName,method);
         h.Patch(original,before==null?null:new HarmonyMethod(owner,before),after==null?null:new HarmonyMethod(owner,after));
     }
 }

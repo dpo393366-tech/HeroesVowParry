@@ -20,4 +20,7 @@ $sources=@(Get-ChildItem "$PSScriptRoot\src\*.cs" | ForEach-Object {$_.FullName}
 New-Item -ItemType Directory -Force -Path $OutputDir|Out-Null
 & $dotnet $csc -nologo -deterministic -optimize+ -target:library -define:DuelCounters "-out:$OutputDir\DuelCounters.dll" $refs $resources $sources
 if($LASTEXITCODE){throw '패링 모드 빌드 실패'}
+& $dotnet $csc -nologo -deterministic -optimize+ -target:library "-out:$OutputDir\DodgeLimit.dll" $refs "$PSScriptRoot\dodge\DodgeLimit.cs" "$PSScriptRoot\dodge\DodgeRules.cs"
+if($LASTEXITCODE){throw '회피 제한 모드 빌드 실패'}
 Get-FileHash "$OutputDir\DuelCounters.dll" -Algorithm SHA256
+Get-FileHash "$OutputDir\DodgeLimit.dll" -Algorithm SHA256

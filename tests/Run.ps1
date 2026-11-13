@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$GameDir)
+﻿param([Parameter(Mandatory=$true)][string]$GameDir)
 $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot
 $out=Join-Path $repo 'bin/tests'
@@ -17,4 +17,9 @@ Get-ChildItem (Join-Path $GameDir 'BepInEx/core/Mono*.dll')|Copy-Item -Destinati
 if($LASTEXITCODE){throw 'Test build failed'}
 & $dotnet "$out/SwitchTests.dll"
 if($LASTEXITCODE){throw 'Lifecycle tests failed'}
+[IO.File]::WriteAllText("$out/DodgeQA.runtimeconfig.json",'{"runtimeOptions":{"tfm":"net6.0","framework":{"name":"Microsoft.NETCore.App","version":"6.0.0"}}}')
+& $dotnet $csc -nologo -optimize+ -target:exe "-out:$out/DodgeQA.dll" $refs "$PSScriptRoot/DodgeQA.cs" "$repo/dodge/DodgeLimit.cs" "$repo/dodge/DodgeRules.cs"
+if($LASTEXITCODE){throw 'Dodge tests build failed'}
+& $dotnet "$out/DodgeQA.dll"
+if($LASTEXITCODE){throw 'Dodge tests failed'}
 & "$PSScriptRoot/Installer.Tests.ps1"

@@ -10,7 +10,7 @@ internal static class StandaloneSettings {
  internal static bool LegacyOpen=>legacy!=null&&(bool)open.GetValue(legacy);
  internal static void TryAttach(){
   if(Attached||Time.unscaledTime<next)return;next=Time.unscaledTime+2;
-  CompactSettings.Connect(typeof(DuelCounters).Assembly);
+  DodgeSettings.Connect();CompactSettings.Connect(typeof(DuelCounters).Assembly);
   foreach(var a in AppDomain.CurrentDomain.GetAssemblies()){
    if(a.GetName().Name!="HeroesVowSettings")continue;
    var type=a.GetType("Vow.Settings.SettingsPanel");const BindingFlags flags=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static|BindingFlags.Instance;
@@ -32,5 +32,6 @@ internal static class StandaloneSettings {
   if(value!=ModControl.Desired)ModControl.Request(value);
   if(ModControl.Pending)GUILayout.Label("진행 중인 전투가 끝나면 적용됩니다.");
   CompactSettings.Connect(typeof(DuelCounters).Assembly);CompactSettings.Draw();
+  if(!Attached)DodgeSettings.Draw();
  }
 }

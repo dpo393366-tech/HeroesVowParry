@@ -11,13 +11,20 @@ internal static class NativeModMenu {
  static int settle;
  static bool busy;
  static string lastStatus;
+ static bool installed;
  internal static void Install(){
+  if(installed)return;
   var h=new Harmony(AdapterOwner);
   try{
-   foreach(var n in new[]{"Start","InitListMod","RefreshListMod","OpenUI"})
-    h.Patch(AccessTools.DeclaredMethod(typeof(UI_ModUI),n),postfix:new HarmonyMethod(typeof(NativeModMenu),nameof(Ensure)){priority=Priority.Last});
+   int attached=0;
+   foreach(var n in new[]{"Start","InitListMod","RefreshListMod","OpenUI"}){
+    var method=AccessTools.Method(typeof(UI_ModUI),n);if(method==null)continue;
+    h.Patch(method,postfix:new HarmonyMethod(typeof(NativeModMenu),nameof(Ensure)){priority=Priority.Last});attached++;
+   }
+   if(attached==0)throw new MissingMethodException("Native MOD menu lifecycle unavailable");
    h.Patch(AccessTools.DeclaredMethod(typeof(UI_ModUI),"Update"),postfix:new HarmonyMethod(typeof(NativeModMenu),nameof(Tick)){priority=Priority.Last});
    foreach(var n in new[]{"ToggleChange","ButtonPress"})h.Patch(AccessTools.DeclaredMethod(typeof(UI_ModRowUI),n),prefix:new HarmonyMethod(typeof(NativeModMenu),n=="ToggleChange"?nameof(Toggle):nameof(Press)));
+   installed=true;
   }catch{h.UnpatchSelf();throw;}
  }
  static bool Same(UI_ModRowUI r)=>row&&r&&row.Pointer==r.Pointer;

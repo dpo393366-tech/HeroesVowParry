@@ -10,7 +10,7 @@ using UnityEngine;
 using NativeRoutine=Il2CppSystem.Collections.IEnumerator;
 namespace Vow.Counters;
 
-[BepInPlugin("local.heroesvow.counters","Heroes Vow Parry","2.0.0")]
+[BepInPlugin("local.heroesvow.counters","Heroes Vow Parry","2.1.0")]
 public sealed class DuelCounters : BasePlugin
 {
     static DuelCounters mod;
@@ -114,6 +114,17 @@ public sealed class DuelCounters : BasePlugin
     }
     public override void Load(){
         mod=this;
+        Panel.Install(this,"T","무투 · 설전",0,Settings);
+        try{LoadCombat();}
+        catch(Exception ex){
+            new Harmony("local.heroesvow.counters").UnpatchSelf();
+            Warn("패링 게임 연결 중단: "+ex);
+            ModControl.InitializeUnavailable(this,ex);
+        }
+    }
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    void LoadCombat(){
+        mod=this;
         // The simultaneous scheduler was removed. Retire its old saved flag
         // without resetting any active timing, balance or audio settings.
         Config.Bind("SimultaneousCombat","Enabled",false,"Retired: martial and debate use native sequential turns.").Value=false;
@@ -169,14 +180,13 @@ public sealed class DuelCounters : BasePlugin
             EnemyGroggy.Install(this,h);
             Effect(CounterEffects.PrepareAudio);
         ParryVisuals.Install(this);
-            Panel.Install(this,"T","무투 · 설전",0,Settings);
             Panel.Overlay=()=>{if(ModControl.Active){glow?.Marker();RealtimeParry.Marker();ParryVisuals.Draw();}};
 #if DuelCounters
             CardLatency.Install(h);CombatCost.Install(h);
 #endif
             ModControl.Initialize(this,h);
-            StabilityNote("Loaded standalone Parry 2.0.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate and balance retained; no companion limit override. Aggregate damage still settles at native final contact.");
-        }catch{h.UnpatchSelf();throw;}
+            StabilityNote("Loaded standalone Parry 2.1.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate and balance retained; no companion limit override. Aggregate damage still settles at native final contact.");
+        }catch(Exception ex){h.UnpatchSelf();Warn("패링 초기화 중단: "+ex);ModControl.InitializeUnavailable(this,ex);}
     }
     static void Settings()=>StandaloneSettings.Draw();
     internal static void Suspend(){Reset();CounterGlow.Reset();TwoHandBrace.Clear();CounterEffects.StopAudio();}
