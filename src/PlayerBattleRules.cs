@@ -15,8 +15,8 @@ internal static class PlayerBattleRules
     internal static void Install(DuelCounters mod,Harmony harmony){
         alliedParry=mod.Config.Bind("PlayerBattle","AlliedManualParry",true,"Right-click/Q guards actual friendly targets in any active martial/debate battle, including story/event battles without the protagonist. Existing automatic rolls remain enabled.");
         enemyAttack=mod.Config.Bind("PlayerBattle","EnemyAttackEnabled",true,"Scale enemy attack stats only in protagonist-participating duels/debates; delegated battles are unchanged.");
-        multiplier=mod.Config.Bind("PlayerBattle","EnemyAttackMultiplier",2f,new ConfigDescription("Enemy attack stat multiplier, not an additional final damage multiplier.",new AcceptableValueRange<float>(.5f,5f)));
-        var balanced=mod.Config.Bind("Migration","AttackBalance183Applied",false,"Legacy migration marker; current default is 2, existing user adjustments are preserved.");
+        multiplier=mod.Config.Bind("PlayerBattle","EnemyAttackMultiplier",1.2f,new ConfigDescription("Enemy attack stat multiplier, not an additional final damage multiplier.",new AcceptableValueRange<float>(.5f,5f)));
+        var balanced=mod.Config.Bind("Migration","AttackBalance183Applied",false,"Legacy migration marker; current default is 1.2, existing user adjustments are preserved.");
         if(!balanced.Value){balanced.Value=true;}
         foreach(var target in new[]{typeof(NFIDHHGKMDC),typeof(LEDJAIBAAJC)})
             Panel.Hook(harmony,target,"LEJICHHIEGH",typeof(PlayerBattleRules),after:nameof(Invalidate));

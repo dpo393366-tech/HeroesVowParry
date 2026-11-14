@@ -46,8 +46,8 @@ class EventBattleTests {
   Check(mod.Config.Bind("PlayerBattle","EnemyAttackMultiplier",2f,"").Value==1.2f,"Saved attack multiplier reset");
   Check(mod.Config.Bind("EnemyTurns","TurnsPerRound",1f,"").Value==1.7f,"Saved turn multiplier reset");
   var fresh=new DuelCounters();PlayerBattleRules.Install(fresh,new());MartialTurnFrequency.Install(fresh,new());
-  Check(fresh.Config.Bind("PlayerBattle","EnemyAttackMultiplier",0f,"").Value==2,"Fresh attack default");
-  Check(fresh.Config.Bind("EnemyTurns","TurnsPerRound",0f,"").Value==1,"Fresh turn default");
+  Check(fresh.Config.Bind("PlayerBattle","EnemyAttackMultiplier",0f,"").Value==1.2f,"Fresh attack default");
+  Check(fresh.Config.Bind("EnemyTurns","TurnsPerRound",0f,"").Value==1.2f,"Fresh turn default");
   foreach(bool debate in new[]{false,true})foreach(bool protagonist in new[]{false,true})foreach(bool auto in new[]{false,true})foreach(var side in Enum.GetValues<FMHEOPMKFJB>()){
    UnityEngine.Time.frameCount++;
    var ally=new Actor{hero=new(){OJPECMNINNA="event-officer"},Pointer=new(1)};ally.attr.IBLKPJDLABN=ally.m_debateAttribute.IBLKPJDLABN=side;ally.attr.Pointer=new(1);ally.m_debateAttribute.Pointer=new(1);
@@ -59,7 +59,7 @@ class EventBattleTests {
    Check(PlayerBattleRules.Manual(debate,ally.hero,side)==(side==FMHEOPMKFJB.MySide||side==FMHEOPMKFJB.Ally),"Friendly-target scope without protagonist");
    Check(PlayerBattleRules.AutoRoll(debate,ally.hero),"NPC automatic roll lost");
    object[] args={debate?(object)enemy.m_debateAttribute:enemy.attr,100};Call(typeof(PlayerBattleRules),debate?"DebateAttack":"FightAttack",args);
-   Check((int)args[1]==(protagonist?200:100),"Attack multiplier scope changed with manual scope");
+   Check((int)args[1]==(protagonist?120:100),"Attack multiplier scope changed with manual scope");
    Fi_Controller.m_curHero=De_Controller.m_curHero=enemy;Fi_Controller.m_curCard=new();De_Controller.m_curCard=new();Fi_Controller.m_isLaunchingAttack=De_Controller.m_isLaunchingAttack=true;
    UnityEngine.Input.down=UnityEngine.Input.held=true;UnityEngine.Input.up=false;GuardInfoInput.Observe();Check(GuardInfoInput.Suppress(),"RMB guard must not open native modal");
    UnityEngine.Time.frameCount++;UnityEngine.Input.down=false;UnityEngine.Input.held=false;UnityEngine.Input.up=true;Check(GuardInfoInput.Suppress(),"Release edge must not open modal");

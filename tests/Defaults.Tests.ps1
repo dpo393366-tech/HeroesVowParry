@@ -6,7 +6,7 @@ $repo=Split-Path $PSScriptRoot
 $checks=@(
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','PlayerMaxPercent',10),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','AllyMaxPercent',10),
- @('DuelCounters','Vow.Counters.PlayerBattleRules','PlayerBattle','EnemyAttackMultiplier',2),
+ @('DuelCounters','Vow.Counters.PlayerBattleRules','PlayerBattle','EnemyAttackMultiplier',1.2),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','QuickBasicAttackSpeed',0.8),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','CueInputWindowSeconds',0.35),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','PreCueBufferSeconds',0.2),

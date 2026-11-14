@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
@@ -18,7 +18,7 @@ internal static class MartialTurnFrequency
     static IntPtr controller;
     static readonly Dictionary<IntPtr,int> turnRemainders=new();
     internal static void Install(BasePlugin plugin,Harmony h){
-        float previous=1f;
+        float previous=1.2f;
         string path=System.IO.Path.Combine(Paths.ConfigPath,"local.heroesvow.enemytempo.cfg");
         if(System.IO.File.Exists(path)){
             var legacy=new ConfigFile(path,false){SaveOnConfigSet=false};
