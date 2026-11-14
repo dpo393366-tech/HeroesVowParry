@@ -165,6 +165,7 @@ public sealed class DuelCounters : BasePlugin
         try{
             Panel.Hook(h,typeof(Fi_InfoUI),"OpenUI",GetType(),before:nameof(AllowInfo));
             Panel.Hook(h,typeof(De_InfoUI),"OpenUI",GetType(),before:nameof(AllowInfo));
+            DiscardDisplay.Install(h);
             ImpactTiming.Install(h);
             Panel.Hook(h,typeof(Fi_Controller),"Update",typeof(ManualCardRefresh),after:"Tick");
             CombatTrace.Install(h);

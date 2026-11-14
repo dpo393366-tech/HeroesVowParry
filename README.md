@@ -81,4 +81,7 @@ BepInEx가 없으면 자동 설치하며, 기존 IL2CPP 로더와 설정은 유�
 
 게임 종료 후 **Install.bat → 2 Remove**. 패링·회피 제한·자동 업데이트를 제거하며 설정과 백업은 남깁니다.
 
+전투 중 중앙에 뜨는 카드 획득·버리기 연출은 숨깁니다. 실제 카드 지급과 하단 손패 표시는 유지합니다.
+
 빌드·검증 정보는 [VALIDATION.md](VALIDATION.md), 동봉 로더의 출처는 [THIRD_PARTY.md](THIRD_PARTY.md)를 참고하세요.
+
