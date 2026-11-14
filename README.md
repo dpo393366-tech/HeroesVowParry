@@ -6,7 +6,9 @@
 
 1. **HeroesVowParry-2.0.0.zip**을 받아 전체 압축을 풉니다. [ZIP 바로 다운로드](https://github.com/dpo393366-tech/HeroesVowParry/releases/download/v2.0.0/HeroesVowParry-2.0.0.zip)
 2. 게임을 종료하고 **Install.bat → 1 Install → 게임 폴더 선택**.
-3. 게임의 **MOD 불러오기 → 무투·설전 패링**에서 ON/OFF, **F11**에서 세부 설정.
+3. 게임의 **MOD 불러오기 → 무투·설전 패링**에서 ON/OFF, **F11**에서 패링·회피 제한 설정.
+
+통합 편의 모드를 함께 사용하면 그 설정은 **F12**, 패링 설정은 **F11**로 별도 표시됩니다. 통합 BAT는 패링·회피 제한을 설치하거나 제거하지 않습니다.
 
 BepInEx가 없으면 자동 설치하며, 기존 IL2CPP 로더와 설정은 유지합니다. 설치 후에는 게임 시작 시 자동 업데이트됩니다. 인터넷 연결에 실패하면 기존 설치본으로 실행합니다.
 

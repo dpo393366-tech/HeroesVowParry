@@ -23,7 +23,7 @@ public sealed class Panel : MonoBehaviour
     internal static string key,title;
     internal static int index;
     static bool opened;
-    internal static bool InputAllowed=>!opened&&!StandaloneSettings.LegacyOpen;
+    internal static bool InputAllowed=>!opened;
 #if DuelCounters
     static Panel runner;
     internal static void Run(System.Collections.IEnumerator routine){runner.StartCoroutine(BepInEx.Unity.IL2CPP.Utils.Collections.CollectionExtensions.WrapToIl2Cpp(routine));}
@@ -37,8 +37,8 @@ public sealed class Panel : MonoBehaviour
         plugin.AddComponent<Panel>();
     }
     public void Update(){
-        ModControl.Tick();StandaloneSettings.TryAttach();
-        if(!StandaloneSettings.Attached&&Input.GetKeyDown(KeyCode.F11))opened=!opened;
+        ModControl.Tick();StandaloneSettings.Refresh();
+        if(Input.GetKeyDown(KeyCode.F11))opened=!opened;
         if(!ModControl.Active)return;
 #if DuelCounters
         long started=CombatCost.Start();
@@ -55,7 +55,7 @@ public sealed class Panel : MonoBehaviour
     Vector2 scroll;
     public void OnGUI(){
         Overlay?.Invoke();
-        if(!opened||StandaloneSettings.Attached)return;
+        if(!opened)return;
         float width=Mathf.Min(650,Screen.width-24),height=Mathf.Min(670,Screen.height-40);
         var box=new Rect((Screen.width-width)*.5f,(Screen.height-height)*.5f,width,height);
         GUI.Box(box,"무투·설전 패링 · F11");
