@@ -4,7 +4,7 @@
 
 ## 설치와 사용
 
-1. **HeroesVowParry-2.0.0.zip**을 받아 전체 압축을 풉니다. [다운로드](https://github.com/dpo393366-tech/HeroesVowParry/releases/tag/v2.0.0)
+1. **HeroesVowParry-2.0.0.zip**을 받아 전체 압축을 풉니다. [ZIP 바로 다운로드](https://github.com/dpo393366-tech/HeroesVowParry/releases/download/v2.0.0/HeroesVowParry-2.0.0.zip)
 2. 게임을 종료하고 **Install.bat → 1 Install → 게임 폴더 선택**.
 3. 게임의 **MOD 불러오기 → 무투·설전 패링**에서 ON/OFF, **F11**에서 세부 설정.
 
