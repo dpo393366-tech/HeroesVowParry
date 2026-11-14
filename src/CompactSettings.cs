@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Reflection;
 using BepInEx.Configuration;
 using UnityEngine;
@@ -17,6 +17,8 @@ namespace Vow.Counters {
    new("DuelCounters","Vow.Counters.DuelCounters","cueWindow","섬광·소리 후 패링 입력 시간 (초)",.05f,2,.05f),
    new("DuelCounters","Vow.Counters.DuelCounters","earlyCueWindow","섬광 전 미리 가드 인정 (초)",0,1,.01f),
    new("DuelCounters","Vow.Counters.DuelCounters","guardWindow","가드 1회 연타 방어 유지 (초)",0,.6f,.01f),
+   new("DuelCounters","Vow.Counters.DuelCounters","playerCeiling","주인공 최대 자동 패링 확률 (%) · AUTO",0,100,1),
+   new("DuelCounters","Vow.Counters.DuelCounters","allyCeiling","아군 장수 최대 자동 패링 확률 (%)",0,100,1),
    new("DuelCounters","Vow.Counters.DuelCounters","enemyCeiling","적 최대 자동 패링 확률 (%)",0,100,1),
    new("DuelCounters","Vow.Counters.EnemyGroggy","threshold","그로기까지 필요한 패링 횟수",1,50,1),
    new("DuelCounters","Vow.Counters.EnemyGroggy","damageMultiplier","그로기 중 받는 피해 배율",1,5,.1f),

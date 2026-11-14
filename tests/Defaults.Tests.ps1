@@ -4,6 +4,8 @@ $repo=Split-Path $PSScriptRoot
 [Reflection.Assembly]::LoadFrom((Join-Path $GameDir 'BepInEx/core/Mono.Cecil.dll'))|Out-Null
 [Reflection.Assembly]::LoadFrom((Join-Path $GameDir 'BepInEx/core/BepInEx.Core.dll'))|Out-Null
 $checks=@(
+ @('DuelCounters','Vow.Counters.DuelCounters','Counter','PlayerMaxPercent',10),
+ @('DuelCounters','Vow.Counters.DuelCounters','Counter','AllyMaxPercent',10),
  @('DuelCounters','Vow.Counters.PlayerBattleRules','PlayerBattle','EnemyAttackMultiplier',2),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','QuickBasicAttackSpeed',0.8),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','CueInputWindowSeconds',0.35),

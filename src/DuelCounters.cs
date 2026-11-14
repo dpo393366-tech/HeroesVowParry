@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using BepInEx;
@@ -14,7 +14,7 @@ namespace Vow.Counters;
 public sealed class DuelCounters : BasePlugin
 {
     static DuelCounters mod;
-    static ConfigEntry<float> window,baseline,ceiling,enemyCeiling,cooldown,comboBudget,timingWindow,postWindow,guardWindow,attackLead,timingAdvance,fastAttackSpeed,quickBasicSpeed,minSingleLead,warningLead,successCooldown,cueWindow,earlyCueWindow;
+    static ConfigEntry<float> window,baseline,ceiling,playerCeiling,allyCeiling,enemyCeiling,cooldown,comboBudget,timingWindow,postWindow,guardWindow,attackLead,timingAdvance,fastAttackSpeed,quickBasicSpeed,minSingleLead,warningLead,successCooldown,cueWindow,earlyCueWindow;
     static ConfigEntry<bool> flash,sound,recoverHalfAP,perStrike,noDelay,visibilityTrace,quickBasic,antiSpam,cueInput;
     static ConfigEntry<float> rangedGrace;
     internal static float RangedGrace=>Mathf.Clamp(rangedGrace?.Value??.1f,0,.5f);
@@ -152,7 +152,9 @@ public sealed class DuelCounters : BasePlugin
         successCooldown=Config.Bind("Counter","SuccessfulCooldownSeconds",0f,new ConfigDescription("Optional cooldown after successful manual parry. Zero permits immediate next guard. Repeated contacts from the same press never extend it.",new AcceptableValueRange<float>(0,2f)));
         baseline=Config.Bind("Counter","BasePercent",10f,new ConfigDescription("Equal strength",new AcceptableValueRange<float>(0,30)));
         ceiling=Config.Bind("Counter","MaxPercent",10f,new ConfigDescription("AI upper bound",new AcceptableValueRange<float>(0,30)));
-        enemyCeiling=Config.Bind("Counter","EnemyMaxPercent",60f,new ConfigDescription("Enemy automatic parry ceiling, adjustable from 0 to 100 percent. Defaults to 60%; ally auto parry keeps MaxPercent.",new AcceptableValueRange<float>(0,100)));
+        playerCeiling=Config.Bind("Counter","PlayerMaxPercent",10f,new ConfigDescription("Protagonist automatic parry ceiling while AUTO is enabled. Manual input is unaffected.",new AcceptableValueRange<float>(0,100)));
+        allyCeiling=Config.Bind("Counter","AllyMaxPercent",10f,new ConfigDescription("Other friendly officers automatic parry ceiling. Independent of protagonist and enemy settings.",new AcceptableValueRange<float>(0,100)));
+        enemyCeiling=Config.Bind("Counter","EnemyMaxPercent",60f,new ConfigDescription("Enemy automatic parry ceiling, adjustable from 0 to 100 percent. Defaults to 60%; protagonist and ally caps are configured separately.",new AcceptableValueRange<float>(0,100)));
         flash=Config.Bind("Counter","YellowHighlight",true,"Flash beside an enemy immediately before damage, after attack animation starts");
         sound=Config.Bind("Counter","PlaySound",true,"Play the incoming attack cue and successful counter sound");
         recoverHalfAP=Config.Bind("Counter","RestoreHalfAPOnSuccess",true,"Gain 0.5 AP per successful parried hit on all defender sides. Native integer AP increases by 1 every two successes; credit resets at battle end/actor initialization and is discarded at cap.");
@@ -235,7 +237,7 @@ public sealed class DuelCounters : BasePlugin
     internal static float NeutralAutoPercent=>baseline.Value;
     internal static float EnemyAutoCeiling=>enemyCeiling.Value;
     static float Relative(float a,float b)=> (a-b)/Mathf.Max(1,a+b);
-    static float Odds(float atk,float def,float aSoul,float dSoul,bool enemy=false)=>Mathf.Clamp(baseline.Value+60*(.6f*Relative(def,atk)+.4f*Relative(dSoul,aSoul)),0,Mathf.Clamp(enemy?enemyCeiling.Value:ceiling.Value,0,enemy?100:30))*.01f;
+    static float Odds(float atk,float def,float aSoul,float dSoul,CLAGKDECFID defender)=>Mathf.Clamp(baseline.Value+60*(.6f*Relative(def,atk)+.4f*Relative(dSoul,aSoul)),0,Mathf.Clamp(IsPlayer(defender)?playerCeiling.Value:allyCeiling.Value,0,100))*.01f;
     static float Stat(CLAGKDECFID h,int primary,int will)=>.5f*primary+.25f*(h?.GGOIKBIJNCJ()??primary)+.25f*will;
     internal static bool IsPlayer(CLAGKDECFID h)=>h!=null && h.OJPECMNINNA==NEINKOOBJIH.POMNMBGDDIN?.OJPECMNINNA;
     internal static void Fight(Fi_Controller __instance,ref NativeRoutine __result){
@@ -246,7 +248,7 @@ public sealed class DuelCounters : BasePlugin
             GKHLLOOEEFN victim=null;bool manual=false,knockback=false;
             foreach(var t in targets){
                 if(t==null||EnemyGroggy.IsStunned(false,t.GetAttribute().Pointer)||!Opposed(side,t.GetAttribute().IBLKPJDLABN))continue;
-                var dh=t.GetHero();float chance=t.GetAttribute().IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(false,actor.GetAttribute().Pointer,t.GetAttribute().Pointer):Odds(Stat(h,actor.GetForce(),actor.GetWill()),Stat(dh,t.GetForce(),t.GetWill()),Souls(h),Souls(dh));
+                var dh=t.GetHero();float chance=t.GetAttribute().IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(false,actor.GetAttribute().Pointer,t.GetAttribute().Pointer):Odds(Stat(h,actor.GetForce(),actor.GetWill()),Stat(dh,t.GetForce(),t.GetWill()),Souls(h),Souls(dh),dh);
                 manual=PlayerBattleRules.Manual(false,dh,t.GetAttribute().IBLKPJDLABN);
                 if(manual||chance>best){victim=t;best=chance;}if(manual)break;
             }
@@ -268,7 +270,7 @@ public sealed class DuelCounters : BasePlugin
             var h=actor.GetHero();var side=actor.m_debateAttribute.IBLKPJDLABN;float best=-1;NPCCtrl victim=null;bool manual=false;
             foreach(var t in targets){
                 if(!t||EnemyGroggy.IsStunned(true,t.m_debateAttribute.Pointer)||!Opposed(side,t.m_debateAttribute.IBLKPJDLABN))continue;
-                var dh=t.GetHero();float chance=t.m_debateAttribute.IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(true,actor.m_debateAttribute.Pointer,t.m_debateAttribute.Pointer):Odds(Stat(h,actor.GetWise(),actor.GetWill()),Stat(dh,t.GetWise(),t.GetWill()),Souls(h),Souls(dh));
+                var dh=t.GetHero();float chance=t.m_debateAttribute.IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(true,actor.m_debateAttribute.Pointer,t.m_debateAttribute.Pointer):Odds(Stat(h,actor.GetWise(),actor.GetWill()),Stat(dh,t.GetWise(),t.GetWill()),Souls(h),Souls(dh),dh);
                 manual=PlayerBattleRules.Manual(true,dh,t.m_debateAttribute.IBLKPJDLABN);
                 if(manual||chance>best){victim=t;best=chance;}if(manual)break;
             }
@@ -297,7 +299,7 @@ public sealed class DuelCounters : BasePlugin
                 var side=actor.m_debateAttribute.IBLKPJDLABN;
                 if(EnemyGroggy.IsStunned(true,victim.m_debateAttribute.Pointer)||!Opposed(side,victim.m_debateAttribute.IBLKPJDLABN))continue;
                 bool manual=PlayerBattleRules.Manual(true,victim.GetHero(),victim.m_debateAttribute.IBLKPJDLABN);
-                float chance=victim.m_debateAttribute.IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(true,actor.m_debateAttribute.Pointer,victim.m_debateAttribute.Pointer):Odds(Stat(actor.GetHero(),actor.GetWise(),actor.GetWill()),Stat(victim.GetHero(),victim.GetWise(),victim.GetWill()),Souls(actor.GetHero()),Souls(victim.GetHero()));
+                float chance=victim.m_debateAttribute.IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(true,actor.m_debateAttribute.Pointer,victim.m_debateAttribute.Pointer):Odds(Stat(actor.GetHero(),actor.GetWise(),actor.GetWill()),Stat(victim.GetHero(),victim.GetWise(),victim.GetWill()),Souls(actor.GetHero()),Souls(victim.GetHero()),victim.GetHero());
                 if(NoDelay){
                     Resolve(plan,step,victim.m_debateAttribute.Pointer,victim.m_debateAttribute.IBLKPJDLABN,manual,PlayerBattleRules.AutoRoll(true,victim.GetHero()),chance,()=>CounterEffects.Rebut(victim),()=>{
                         if(!PerHitParry.Block(plan,step,victim.m_debateAttribute.Pointer))return;
@@ -321,7 +323,7 @@ public sealed class DuelCounters : BasePlugin
                 var side=actor.GetAttribute().IBLKPJDLABN;
                 if(EnemyGroggy.IsStunned(false,victim.GetAttribute().Pointer)||!Opposed(side,victim.GetAttribute().IBLKPJDLABN))continue;
                 bool manual=PlayerBattleRules.Manual(false,victim.GetHero(),victim.GetAttribute().IBLKPJDLABN);
-                float chance=victim.GetAttribute().IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(false,actor.GetAttribute().Pointer,victim.GetAttribute().Pointer):Odds(Stat(actor.GetHero(),actor.GetForce(),actor.GetWill()),Stat(victim.GetHero(),victim.GetForce(),victim.GetWill()),Souls(actor.GetHero()),Souls(victim.GetHero()));
+                float chance=victim.GetAttribute().IBLKPJDLABN==FMHEOPMKFJB.Enemy?StrengthPressure.EnemyOdds(false,actor.GetAttribute().Pointer,victim.GetAttribute().Pointer):Odds(Stat(actor.GetHero(),actor.GetForce(),actor.GetWill()),Stat(victim.GetHero(),victim.GetForce(),victim.GetWill()),Souls(actor.GetHero()),Souls(victim.GetHero()),victim.GetHero());
                 if(NoDelay){
                     Resolve(plan,step,victim.GetAttribute().Pointer,victim.GetAttribute().IBLKPJDLABN,manual,PlayerBattleRules.AutoRoll(false,victim.GetHero()),chance,()=>CounterEffects.Guard(victim),()=>{
                         if(!PerHitParry.Block(plan,step,victim.GetAttribute().Pointer,victim))return;
