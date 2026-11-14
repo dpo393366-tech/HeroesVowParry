@@ -28,6 +28,13 @@ foreach($f in Get-HVPlugins $pluginRoot){
     $identity='';try{$identity=[Reflection.AssemblyName]::GetAssemblyName($f.FullName).Name}catch{}
     if($f.BaseName -in $moduleNames -or $identity -in $moduleNames){$existing+=$f}
 }
+$patcherRoot=Join-Path $GameDir 'BepInEx\patchers'
+foreach($f in Get-HVPlugins $patcherRoot){
+    $identity='';try{$identity=[Reflection.AssemblyName]::GetAssemblyName($f.FullName).Name}catch{}
+    if($identity -eq 'ParryAutoUpdate'){$existing+=$f}
+}
+$ownerPath=Join-Path $patcherRoot 'HeroesVowParry/owner.json'
+if(Test-Path -LiteralPath $ownerPath){$existing+=Get-Item -LiteralPath $ownerPath}
 if($Action -eq 'Remove' -and !$existing.Count){Write-Host '패링·회피 제한 DLL이 설치되어 있지 않습니다.';return}
 $plan=@();$stage=Join-Path ([IO.Path]::GetTempPath()) ('HeroesVowParry-'+[Guid]::NewGuid().ToString('N'))
 if($Action -eq 'Install'){
@@ -38,6 +45,10 @@ if($Action -eq 'Install'){
         if((Hash $source) -ne $module.sha256){throw ('배포 파일이 손상되었습니다: '+$module.file)}
         $plan+= [pscustomobject]@{Source=$source;Destination=(Join-Path $pluginRoot ($module.name+'\'+$module.name+'.dll'))}
     }
+    $source=Join-Path $PSScriptRoot $manifest.updater.file
+    if((Hash $source) -ne $manifest.updater.sha256){throw '자동 업데이트 파일이 손상되었습니다.'}
+    $plan+= [pscustomobject]@{Source=$source;Destination=(Join-Path $patcherRoot 'HeroesVowParry/ParryAutoUpdate.dll')}
+    $plan+= [pscustomobject]@{Source=(Join-Path $PSScriptRoot 'manifest.json');Destination=$ownerPath}
     $plan+=@(Get-HVLoaderPlan $GameDir $manifest $PSScriptRoot $stage)
 }
 $backup=Join-Path $GameDir ('BepInEx\disabled-mods\ParryBackup-'+[DateTime]::Now.ToString('yyyyMMdd-HHmmss')+'-'+[Guid]::NewGuid().ToString('N').Substring(0,8))
@@ -45,7 +56,7 @@ New-Item -ItemType Directory -Path $backup -Force | Out-Null
 $moved=@();$written=@()
 try{
     foreach($f in $existing){
-        $relative=$f.FullName.Substring($pluginRoot.Length).TrimStart('\')
+        $relative=$f.FullName.Substring($GameDir.Length).TrimStart('\')
         $saved=Join-Path $backup $relative
         New-Item -ItemType Directory -Path (Split-Path $saved) -Force | Out-Null
         Move-Item -LiteralPath $f.FullName -Destination $saved

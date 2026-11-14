@@ -5,7 +5,7 @@
     {
       "name": "DuelCounters",
       "file": "dist/DuelCounters.dll",
-      "sha256": "010DC1F16A72B0081A0B1587F91230CE7AD69AB84B9A821FFC9C1632AC83A9B7"
+      "sha256": "D41C4F47DE05E2FF1790FB27C90FF2C03F115A20E9FD65C62A62712AC8B0313C"
     },
     {
       "name": "DodgeLimit",
@@ -17,5 +17,10 @@
     "file": "dist/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.788.zip",
     "sha256": "F4CC496BD098A0DF4164B81E3737297707F13A47C2478DBA2F60EEFAB784817A",
     "source": "https://builds.bepinex.dev/projects/bepinex_be/788/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.788%2B5b766a3.zip"
+  },
+  "updater": {
+    "file": "dist/ParryAutoUpdate.dll",
+    "sha256": "49543A9DE19A88922779F4712ED4A6226495E5C8B0704410C07FB91A4DE4E112",
+    "defaultEnabled": true
   }
 }

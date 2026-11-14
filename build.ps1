@@ -24,3 +24,7 @@ if($LASTEXITCODE){throw '패링 모드 빌드 실패'}
 if($LASTEXITCODE){throw '회피 제한 모드 빌드 실패'}
 Get-FileHash "$OutputDir\DuelCounters.dll" -Algorithm SHA256
 Get-FileHash "$OutputDir\DodgeLimit.dll" -Algorithm SHA256
+
+$updaterRefs=$refs+@(('-r:'+(Join-Path $game 'BepInEx/core/BepInEx.Preloader.Core.dll')),('-r:'+(Join-Path $game 'BepInEx/core/Mono.Cecil.dll')))
+& $dotnet $csc -nologo -deterministic -optimize+ -target:library "-out:$OutputDir/ParryAutoUpdate.dll" $updaterRefs "$PSScriptRoot/updater/Bootstrap.cs" "$PSScriptRoot/updater/Engine.cs"
+if($LASTEXITCODE){throw 'Startup updater build failed'}

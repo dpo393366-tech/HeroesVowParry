@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -17,7 +17,8 @@ internal static class StrengthPressure
         internal bool owns;internal int clipIndex=-1;internal float lastContact=-1;
     }
     sealed class Profile {
-        internal double attack,defence,efficiency=1,souls,quality=1;
+        internal double attack,defence,efficiency=1,souls,quality=1,intellect,debateSoul;
+        internal bool martial;
         internal IntPtr hero;
     }
     static readonly Dictionary<(bool,IntPtr),Profile> profiles=new();
@@ -51,12 +52,11 @@ internal static class StrengthPressure
     }
     static double Ratio(double a,double b)=>Math.Clamp((1+a)/(1+b),.05,20);
     static double Compare(Profile a,Profile b){
-        // 70% functional matchup / 20% relevant soul advantage / 10% equipped
-        // manual quality. Log weighting prevents a single huge number dominating.
-        return Vow.Shared.StrengthMetric.Compare(
-            Vow.Shared.StrengthMetric.Score(a.attack,a.defence,a.efficiency,a.souls,a.quality),
-            Vow.Shared.StrengthMetric.Score(b.attack,b.defence,b.efficiency,b.souls,b.quality));
+        return Vow.Shared.StrengthMetric.Compare(Score(a),Score(b));
     }
+    static double Score(Profile p)=>p.martial
+        ?Vow.Shared.StrengthMetric.MartialScore(p.attack,p.defence,p.efficiency,p.souls,p.debateSoul,p.quality,p.intellect)
+        :Vow.Shared.StrengthMetric.Score(p.attack,p.defence,p.efficiency,p.souls,p.quality);
     internal static float ChanceFromRatio(double defenderOverAttacker,float baseline,float ceiling){
         if(!double.IsFinite(defenderOverAttacker)||defenderOverAttacker<=0)defenderOverAttacker=1;
         // Retain the old +/-60 percentage-point response and configured cap,
@@ -95,7 +95,7 @@ internal static class StrengthPressure
     static Profile FightProfile(GKHLLOOEEFN actor){
         var attr=actor.GetAttribute();var hero=actor.GetHero();var key=(false,attr.Pointer);
         if(profiles.TryGetValue(key,out var old)&&old.hero==(hero?.Pointer??IntPtr.Zero))return old;
-        var p=new Profile{hero=hero?.Pointer??IntPtr.Zero,attack=Math.Max(1,attr.MIPCJKHEHFO(false)),defence=Math.Max(0,attr.FCJJDMAMNHA(false)),souls=Soul(hero,false)};
+        var p=new Profile{hero=hero?.Pointer??IntPtr.Zero,attack=Math.Max(1,attr.MIPCJKHEHFO(false)),defence=Math.Max(0,attr.FCJJDMAMNHA(false)),souls=Soul(hero,false),debateSoul=Soul(hero,true),intellect=Math.Max(0,actor.GetWise()),martial=true};
         double total=0;int count=0;seen.Clear();
         void Card(KJFOPOCBHBM c){
             if(c==null||c.HFBAJIGHOAF!=KJFOPOCBHBM.CCENIDMDCCN.Attack||!seen.Add(c.OJPECMNINNA)||count>=64)return;
@@ -164,7 +164,7 @@ internal static class StrengthPressure
         frozen[(debate,id,target)]=(pressure,limit.speed,limit.window);
         float odds=ChanceFromRatio(ratio,DuelCounters.NeutralAutoPercent,DuelCounters.EnemyAutoCeiling);
         frozenEnemyOdds[(debate,target,id)]=odds;
-        if(logs++<64)DuelCounters.StabilityNote($"strength prebattle frozen enemy={id} defender={target} debate={debate} ratio={ratio:F3} pressure={pressure:F3} speed={limit.speed:F3} cueSeconds={limit.window:F3} enemyAutoParry={odds:P1} souls={attacker.souls:F0}/{defender.souls:F0} quality={attacker.quality:F2}/{defender.quality:F2}");
+        if(logs++<64)DuelCounters.StabilityNote($"strength prebattle frozen enemy={id} defender={target} debate={debate} ratio={ratio:F3} pressure={pressure:F3} speed={limit.speed:F3} cueSeconds={limit.window:F3} enemyAutoParry={odds:P1} souls={attacker.souls:F0}/{defender.souls:F0} quality={attacker.quality:F2}/{defender.quality:F2} intellect={attacker.intellect:F0}/{defender.intellect:F0} debateSoul={attacker.debateSoul:F0}/{defender.debateSoul:F0}");
     }
     static float BaseWindow(bool debate)=>(debate?debateWindow:fightWindow)>0?(debate?debateWindow:fightWindow):DuelCounters.CueWindow;
     static IntPtr Attacker(ImpactTiming.Attack a)=>a.pressure?.attacker??(a.debate?a.debater.m_debateAttribute.Pointer:a.fighter.GetAttribute().Pointer);

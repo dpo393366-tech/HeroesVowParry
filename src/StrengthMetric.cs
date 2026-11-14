@@ -9,5 +9,11 @@ internal static class StrengthMetric {
         return .7*(Math.Log(1+Valid(attack,1))+Math.Log(101+Valid(defence,0))+Math.Log(1+Valid(efficiency,.1)))
             +.2*Math.Log(1+Valid(soul,0))+.1*Math.Log(1+Valid(quality,1));
     }
+    // Martial evaluation includes both martial/debate souls and intellect.
+    // Intellect is a bounded-growth log contribution, not a damage multiplier.
+    internal static double MartialScore(double attack,double defence,double efficiency,double martialSoul,double debateSoul,double quality,double intellect){
+        return Score(attack,defence,efficiency,Valid(martialSoul,0)+Valid(debateSoul,0),quality)
+            +.2*Math.Log(1+Valid(intellect,0)/100);
+    }
     internal static double Compare(double first,double second)=>Math.Exp(Math.Clamp(first-second,Math.Log(.05),Math.Log(20)));
 }

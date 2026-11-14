@@ -19,6 +19,8 @@ function MustFail($action){$failed=$false;try{Run $action}catch{$failed=$true};A
 $dest=Join-Path $game 'BepInEx/plugins/DuelCounters/DuelCounters.dll'
 $dodge=Join-Path $game 'BepInEx/plugins/DodgeLimit/DodgeLimit.dll'
 Run Install
+Assert (Test-Path "$game/BepInEx/patchers/HeroesVowParry/ParryAutoUpdate.dll") 'Updater not installed'
+Assert (Test-Path "$game/BepInEx/patchers/HeroesVowParry/owner.json") 'Owner record missing'
 foreach($module in $m.modules){Assert ((Get-FileHash (Join-Path $game ('BepInEx/plugins/'+$module.name+'/'+$module.name+'.dll'))).Hash -eq $module.sha256) 'Module copy failed'}
 Assert ((Get-Content "$game/winhttp.dll" -Raw) -eq 'other-version-preserve') 'Existing injector changed'
 Assert ((Get-Content "$game/BepInEx/core/0Harmony.dll" -Raw) -eq 'other-version-preserve') 'Existing runtime changed'
@@ -27,6 +29,8 @@ Assert (@(Get-ChildItem "$game/BepInEx/plugins" -Recurse -Filter DuelCounters.dl
 Assert (@(Get-ChildItem "$game/BepInEx/plugins" -Recurse -Filter DodgeLimit.dll).Count -eq 1) 'Duplicate dodge'
 foreach($n in 'local.heroesvow.counters.cfg','local.heroesvow.dodgelimit.cfg','BepInEx.cfg'){Assert ((Get-Content (Join-Path $game ('BepInEx/config/'+$n)) -Raw) -eq 'user-settings') 'Settings changed'}
 Run Remove
+Assert (!(Test-Path "$game/BepInEx/patchers/HeroesVowParry/ParryAutoUpdate.dll")) 'Updater survived removal'
+Assert (!(Test-Path "$game/BepInEx/patchers/HeroesVowParry/owner.json")) 'Owner survived removal'
 Assert (!(Test-Path $dest) -and !(Test-Path $dodge)) 'Remove failed'
 Assert ((Get-Content "$game/BepInEx/plugins/Other/Other.dll" -Raw) -eq 'unrelated-preserve') 'Other mod changed'
 Run Remove
