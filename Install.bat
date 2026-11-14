@@ -1,7 +1,7 @@
 @echo off
 setlocal
 chcp 65001 >nul
-echo Heroes' Vow - Parry and Dodge Limit 2.1.0
+echo Heroes' Vow - Parry and Dodge Limit 2.0.0
 echo 1 Install / 2 Remove / Q Cancel
 set "choice="
 set /p "choice=Select (Enter=Install): "

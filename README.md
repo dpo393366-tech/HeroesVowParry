@@ -4,7 +4,7 @@
 
 ## 설치
 
-1. [Releases](https://github.com/dpo393366-tech/HeroesVowParry/releases/latest)에서 `HeroesVowParry-2.1.0.zip`을 받습니다.
+1. [Releases](https://github.com/dpo393366-tech/HeroesVowParry/releases/latest)에서 `HeroesVowParry-2.0.0.zip`을 받습니다.
 2. ZIP 전체를 압축 해제하고 게임을 종료합니다.
 3. `Install.bat` 실행 → `1 Install` → 게임 폴더 선택. 설치 위치는 특정 드라이브에 고정되지 않습니다.
 4. 게임 실행 → **MOD 불러오기** → 목록 맨 아래 **무투·설전 패링** 체크로 ON/OFF.
@@ -15,7 +15,7 @@
 
 ## 게임 시작 시 자동 업데이트
 
-수정된 2.1.0 ZIP의 Install.bat을 한 번 실행하면, 이후 게임 시작 시 최신 공개 배포본의 패링·회피 제한 파일을 자동으로 확인하고 적용합니다. 예전 ZIP으로 설치한 경우 이번 ZIP을 다시 받아 한 번 설치해야 합니다. 전투 중 다운로드하거나 파일을 교체하지 않습니다.
+수정된 2.0.0 ZIP의 Install.bat을 한 번 실행하면, 이후 게임 시작 시 최신 공개 배포본의 패링·회피 제한 파일을 자동으로 확인하고 적용합니다. 예전 ZIP으로 설치한 경우 이번 ZIP을 다시 받아 한 번 설치해야 합니다. 전투 중 다운로드하거나 파일을 교체하지 않습니다.
 
 - 자동 업데이트는 기본 ON. `BepInEx/config/local.heroesvow.parry.updater.cfg`의 `[Update] Enabled = false`로 끌 수 있습니다.
 - 설정·로더·다른 플러그인은 유지합니다. 직접 다른 패링/통합판 DLL로 교체한 경우 해당 파일을 보존하고 자동 업데이트를 건너뜁니다.

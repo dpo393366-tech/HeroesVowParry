@@ -10,7 +10,7 @@ using UnityEngine;
 using NativeRoutine=Il2CppSystem.Collections.IEnumerator;
 namespace Vow.Counters;
 
-[BepInPlugin("local.heroesvow.counters","Heroes Vow Parry","2.1.0")]
+[BepInPlugin("local.heroesvow.counters","Heroes Vow Parry","2.0.0")]
 public sealed class DuelCounters : BasePlugin
 {
     static DuelCounters mod;
@@ -185,7 +185,7 @@ public sealed class DuelCounters : BasePlugin
             CardLatency.Install(h);CombatCost.Install(h);
 #endif
             ModControl.Initialize(this,h);
-            StabilityNote("Loaded standalone Parry 2.1.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate and balance retained; no companion limit override. Aggregate damage still settles at native final contact.");
+            StabilityNote("Loaded standalone Parry 2.0.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate and balance retained; no companion limit override. Aggregate damage still settles at native final contact.");
         }catch(Exception ex){h.UnpatchSelf();Warn("패링 초기화 중단: "+ex);ModControl.InitializeUnavailable(this,ex);}
     }
     static void Settings()=>StandaloneSettings.Draw();
