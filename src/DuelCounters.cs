@@ -88,7 +88,7 @@ public sealed class DuelCounters : BasePlugin
     internal static void PollInput(){
         GuardInfoInput.Observe();
         if(NoDelay){RealtimeParry.PollInput();return;}
-        if(!(Fi_Controller.m_isInBattle?PlayerBattleRules.Participating(false):De_Controller.m_isInDebate&&PlayerBattleRules.Participating(true)))return;
+        if(!(Fi_Controller.m_isInBattle?PlayerBattleRules.ManualCombat(false):De_Controller.m_isInDebate&&PlayerBattleRules.ManualCombat(true)))return;
         if(!Panel.InputAllowed||!Application.isFocused||Time.timeScale<=0||!GuardPressed)return;
         if(!Fi_Controller.m_isInBattle && !De_Controller.m_isInDebate && manualGuard==null)return;
         bool windowLive=manualGuard!=null && live?.Invoke()==true;
@@ -175,6 +175,7 @@ public sealed class DuelCounters : BasePlugin
             Panel.Hook(h,typeof(De_Controller),"EndDebate",GetType(),before:nameof(Reset));
             CombatTargetRecovery.Install(h);
             PlayerBattleRules.Install(this,h);
+            MartialTurnFrequency.Install(this,h);
 #if DuelCounters
             StrengthPressure.Install(this,h);
 #endif
@@ -186,7 +187,7 @@ public sealed class DuelCounters : BasePlugin
             CardLatency.Install(h);CombatCost.Install(h);
 #endif
             ModControl.Initialize(this,h);
-            StabilityNote("Loaded standalone Parry 2.0.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate and balance retained; no companion limit override. Aggregate damage still settles at native final contact.");
+            StabilityNote("Loaded standalone Parry 2.0.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate; configured enemy attack/turn multipliers; no companion limit override. Aggregate damage still settles at native final contact.");
         }catch(Exception ex){h.UnpatchSelf();Warn("패링 초기화 중단: "+ex);ModControl.InitializeUnavailable(this,ex);}
     }
     static void Settings()=>StandaloneSettings.Draw();

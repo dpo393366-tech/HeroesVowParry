@@ -66,7 +66,7 @@ internal static class EnemyGroggy
     static void FighterJoining(NFIDHHGKMDC __instance){Forget(false,__instance.Pointer);ParryRecovery.Forget(false,__instance.Pointer);}
     static void DebaterJoining(LEDJAIBAAJC __instance){Forget(true,__instance.Pointer);ParryRecovery.Forget(true,__instance.Pointer);}
     internal static void Record(ImpactTiming.Attack a,PerHitParry.Step step=null){
-        if(enabled?.Value!=true||a==null||!a.Valid()||!PlayerBattleRules.Participating(a.debate))return;
+        if(enabled?.Value!=true||a==null||!a.Valid()||!PlayerBattleRules.ManualCombat(a.debate))return;
         bool counted=step==null?a.groggyCounted:step.groggyCounted;
         if(counted)return;
         var attr=a.debate?a.debater?.m_debateAttribute?.Pointer:a.fighter?.GetAttribute()?.Pointer;
@@ -115,7 +115,7 @@ internal static class EnemyGroggy
         }
         if(side!=FMHEOPMKFJB.MySide&&side!=FMHEOPMKFJB.Ally)return state;
         var a=PerHitParry.DamageOwner;
-        if(a==null||a.debate!=debate||!a.Valid()||!PlayerBattleRules.Participating(debate))return state;
+        if(a==null||a.debate!=debate||!a.Valid()||!PlayerBattleRules.ManualCombat(debate))return state;
         var id=debate?a.debater?.m_debateAttribute?.Pointer:a.fighter?.GetAttribute()?.Pointer;
         if(id==null)return state;
         var attackerSide=debate?a.debater.m_debateAttribute.IBLKPJDLABN:a.fighter.GetAttribute().IBLKPJDLABN;
@@ -256,7 +256,7 @@ internal static class EnemyGroggy
         // m_listHUD is the native RECYCLE POOL. GetOne removes the visible HUD
         // from it, so enumerating that list cannot find active enemy health bars.
         // Resolve ownership from the actual battle roster instead.
-        if(Fi_Controller.m_isInBattle&&!Fi_Controller.m_isEnd&&PlayerBattleRules.Participating(false)&&Fi_Controller.m_listHero!=null)
+        if(Fi_Controller.m_isInBattle&&!Fi_Controller.m_isEnd&&PlayerBattleRules.ManualCombat(false)&&Fi_Controller.m_listHero!=null)
             foreach(var actor in Fi_Controller.m_listHero)try{
                 var attr=actor?.GetAttribute();
                 if(attr==null||attr.IBLKPJDLABN!=FMHEOPMKFJB.Enemy||attr.MKEIPLCMANH<=0)continue;
@@ -264,7 +264,7 @@ internal static class EnemyGroggy
                 if(!hud||hud.m_battleUnit?.Pointer!=actor.Pointer){BindBar(e,null,null,null);continue;}
                 BindBar(e,HealthTrack(hud.m_followingHpSlider,hud.m_healthImage),hud.m_rectTransform?hud.m_rectTransform:hud.GetComponent<RectTransform>(),hud.m_healthImage);
             }catch(Exception ex){Report("무투 HUD 연결 "+ex.Message);}
-        if(De_Controller.m_isInDebate&&PlayerBattleRules.Participating(true)&&De_Controller.m_listHero!=null)
+        if(De_Controller.m_isInDebate&&PlayerBattleRules.ManualCombat(true)&&De_Controller.m_listHero!=null)
             foreach(var actor in De_Controller.m_listHero)try{
                 var attr=actor?.m_debateAttribute;
                 if(attr==null||attr.IBLKPJDLABN!=FMHEOPMKFJB.Enemy||attr.MKEIPLCMANH<=0)continue;

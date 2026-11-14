@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -43,7 +43,7 @@ internal static class LateParry
         try{
             RealtimeParry.PollInput();
             for(int i=0;i<pending.Count;){
-                var x=pending[i];bool valid=PerHitParry.Valid(x.plan)&&PlayerBattleRules.Participating(x.plan.attack.debate)&&!EnemyGroggy.IsStunned(x.plan.attack.debate,x.attribute);
+                var x=pending[i];bool valid=PerHitParry.Valid(x.plan)&&PlayerBattleRules.ManualCombat(x.plan.attack.debate)&&!EnemyGroggy.IsStunned(x.plan.attack.debate,x.attribute);
                 bool won=valid && (x.cueMode?RealtimeParry.MatchesCue(x.plan.attack,x.attribute,x.contact,x.deadline,x.actualContact):RealtimeParry.Matches(x.plan.attack,x.attribute,x.contact,x.deadline));
                 if(valid && !won && Time.unscaledTimeAsDouble<=x.deadline){i++;continue;}
                 pending.RemoveAt(i);

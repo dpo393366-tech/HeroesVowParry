@@ -129,7 +129,7 @@ internal static class StrengthPressure
     // No rerating for HP loss, buffs, groggy, drawn cards, round or option changes.
     static void Freeze(bool debate){
         if(debate?debateFrozen:fightFrozen)return;
-        if(!PlayerBattleRules.Participating(debate))return;
+        if(!PlayerBattleRules.ManualCombat(debate))return;
         try{
             var actors=new List<(IntPtr id,FMHEOPMKFJB side,Profile profile)>();
             if(debate){

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -75,7 +75,7 @@ internal static class RealtimeParry
 
     static bool Eligible(ImpactTiming.Attack a,out IntPtr victim,out Action guard,bool pose=false,bool early=false){
         victim=IntPtr.Zero;guard=null;
-        if(a==null || !a.Valid() || a.cancelled || !PlayerBattleRules.Participating(a.debate))return false;
+        if(a==null || !a.Valid() || a.cancelled || !PlayerBattleRules.ManualCombat(a.debate))return false;
         // The animation can finish before an owned late-input deadline.
         // Its pending victim still owns that window until settlement completes.
         if(LateParry.Target(a,out victim,out guard))return true;
@@ -115,7 +115,7 @@ internal static class RealtimeParry
     }
     internal static void PollInput(){
         GuardInfoInput.Observe();
-        if(!(Fi_Controller.m_isInBattle?PlayerBattleRules.Participating(false):De_Controller.m_isInDebate&&PlayerBattleRules.Participating(true))){
+        if(!(Fi_Controller.m_isInBattle?PlayerBattleRules.ManualCombat(false):De_Controller.m_isInDebate&&PlayerBattleRules.ManualCombat(true))){
             pressedAttack=null;pressedAt=-1;consumedPress=false;pressedVictims.Clear();successfulVictims.Clear();acceptedCues.Clear();ClearCue();return;
         }
         if(!Allowed){pressedAttack=null;pressedAt=-1;ClearCue();return;}
@@ -152,12 +152,12 @@ internal static class RealtimeParry
         // Unity Update ordering is unspecified. Read the same input edge before
         // native damage too; the frame guard prevents duplicate consumption.
         PollInput();
-        if(!Allowed || pressedAttack!=a || !pressedVictims.ContainsKey(victim) || !a.Valid() || a.cancelled || !PlayerBattleRules.Participating(a.debate))return false;
+        if(!Allowed || pressedAttack!=a || !pressedVictims.ContainsKey(victim) || !a.Valid() || a.cancelled || !PlayerBattleRules.ManualCombat(a.debate))return false;
         double age=Time.unscaledTimeAsDouble-DuelCounters.TimingAdvance-pressedAt;
         return age>=-DuelCounters.PostWindow-1e-7 && age<=(successfulVictims.Contains(victim)?RepeatGuard(a,victim):DuelCounters.TimingWindow+RangedGrace(a))+1e-7;
     }
     internal static bool Matches(ImpactTiming.Attack a,IntPtr victim,double contact,double deadline){
-        if(!Allowed || pressedAttack!=a || !pressedVictims.ContainsKey(victim) || !a.Valid() || a.cancelled || !PlayerBattleRules.Participating(a.debate))return false;
+        if(!Allowed || pressedAttack!=a || !pressedVictims.ContainsKey(victim) || !a.Valid() || a.cancelled || !PlayerBattleRules.ManualCombat(a.debate))return false;
         // A late click can cover more than one already-arrived hit, but only
         // while each hit's own post deadline is still open. No retroactive HP undo.
         double delta=pressedAt-contact;
@@ -312,7 +312,7 @@ internal static class RealtimeParry
         PollInput();return MatchesCue(a,victim,start,deadline,contact);
     }
     internal static bool MatchesCue(ImpactTiming.Attack a,IntPtr victim,double start,double deadline,double contact){
-        if(!Allowed || !a.Valid() || a.cancelled || !PlayerBattleRules.Participating(a.debate))return false;
+        if(!Allowed || !a.Valid() || a.cancelled || !PlayerBattleRules.ManualCombat(a.debate))return false;
         deadline=DefenderDeadline(a,victim,start,deadline);
         LatchCueInput(a);matchedPress=-1;
         if(acceptedCues.TryGetValue((a,victim,start),out var committed)){matchedPress=committed;return true;}

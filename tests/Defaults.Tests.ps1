@@ -1,9 +1,10 @@
-param([Parameter(Mandatory=$true)][string]$GameDir)
+﻿param([Parameter(Mandatory=$true)][string]$GameDir)
 $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot
 [Reflection.Assembly]::LoadFrom((Join-Path $GameDir 'BepInEx/core/Mono.Cecil.dll'))|Out-Null
 [Reflection.Assembly]::LoadFrom((Join-Path $GameDir 'BepInEx/core/BepInEx.Core.dll'))|Out-Null
 $checks=@(
+ @('DuelCounters','Vow.Counters.PlayerBattleRules','PlayerBattle','EnemyAttackMultiplier',2),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','QuickBasicAttackSpeed',0.8),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','CueInputWindowSeconds',0.35),
  @('DuelCounters','Vow.Counters.DuelCounters','Counter','PreCueBufferSeconds',0.2),

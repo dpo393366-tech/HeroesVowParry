@@ -4,13 +4,15 @@ using BepInEx.Configuration;
 using UnityEngine;
 namespace Vow.Counters {
  internal static class CompactSettings {
-  internal static ConfigEntry<bool> warningEffects;
+  internal static ConfigEntry<bool> warningEffects,enemyAttack;
   internal sealed class Control {
    internal readonly string module,type,field,label;internal readonly float min,max,step;
    internal ConfigEntry<float> entry;
    internal Control(string module,string type,string field,string label,float min,float max,float step){this.module=module;this.type=type;this.field=field;this.label=label;this.min=min;this.max=max;this.step=step;}
   }
   internal static readonly Control[] controls={
+   new("DuelCounters","Vow.Counters.PlayerBattleRules","multiplier","적 공격력 배율 · 주인공 참전 무투·설전",.5f,5,.1f),
+   new("DuelCounters","Vow.Counters.MartialTurnFrequency","frequency","무투 적 차례 배율 · 다음 라운드",1,4,.1f),
    new("DuelCounters","Vow.Counters.DuelCounters","quickBasicSpeed","단타 공격 모션 배속",.25f,1,.05f),
    new("DuelCounters","Vow.Counters.DuelCounters","cueWindow","섬광·소리 후 패링 입력 시간 (초)",.05f,2,.05f),
    new("DuelCounters","Vow.Counters.DuelCounters","earlyCueWindow","섬광 전 미리 가드 인정 (초)",0,1,.01f),
@@ -22,12 +24,15 @@ namespace Vow.Counters {
    new("DuelCounters","Vow.Counters.StrengthPressure","minWindow","강적 최소 패링 시간 (초) · 다음 전투",.05f,2,.01f),
   };
   internal static void Connect(Assembly assembly){
+   if(enemyAttack==null&&assembly.GetName().Name=="DuelCounters")
+    enemyAttack=assembly.GetType("Vow.Counters.PlayerBattleRules",false)?.GetField("enemyAttack",BindingFlags.Static|BindingFlags.NonPublic)?.GetValue(null) as ConfigEntry<bool>;
    if(warningEffects==null&&assembly.GetName().Name=="DuelCounters")
     warningEffects=assembly.GetType("Vow.Counters.ParryVisuals",false)?.GetField("warningEffects",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic)?.GetValue(null) as ConfigEntry<bool>;
    foreach(var c in controls)if(c.entry==null&&assembly.GetName().Name==c.module)
     c.entry=assembly.GetType(c.type,false)?.GetField(c.field,BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic)?.GetValue(null) as ConfigEntry<float>;
   }
   internal static void Draw(){
+   if(enemyAttack!=null){bool value=GUILayout.Toggle(enemyAttack.Value,"적 공격력 배율 사용 · 주인공 참전 전투");if(value!=enemyAttack.Value)enemyAttack.Value=value;}
    if(warningEffects!=null){
     bool shown=GUILayout.Toggle(warningEffects.Value,"패링 이펙트 표시 · 금빛 섬광 / 붉은 예고");
     if(shown!=warningEffects.Value)warningEffects.Value=shown;
