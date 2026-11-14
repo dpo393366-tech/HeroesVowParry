@@ -3,21 +3,23 @@ namespace Vow.Counters;
 // Per-enemy, per-battle state. Turn keys are native round/order pairs, not frames.
 internal sealed class GroggyMeter
 {
-    internal int count,skips;
+    internal float count;internal int skips;
     internal bool stunned;
     // Successful outgoing attack: victim HP must actually decrease.
     // Blocked, dodged and zero-damage hits do not reduce the attacker's meter.
     // Reducing the meter never cancels an already scheduled groggy turn.
-    internal void Hit(int before,int after){if(before>after && count>0)count--;}
+    internal void Hit(int before,int after){if(before>after && count>0)count=System.Math.Max(0,count-1);}
     int activationRound,activationOrder,lastRound=int.MinValue,lastOrder=int.MinValue;
     bool lastSkip;
-    internal bool RecordAttack(ref bool counted,int round,int order,int threshold=10){
-        if(counted)return false;counted=true;return Record(round,order,threshold);
+    internal bool RecordAttack(ref bool counted,int round,int order,int threshold=10,bool combo=false){
+        if(counted)return false;counted=true;return Record(round,order,threshold,combo);
     }
-    internal bool Record(int round,int order,int threshold=10){
+    internal bool Record(int round,int order,int threshold=10,bool combo=false){
         if(stunned)return false;
         threshold=System.Math.Clamp(threshold,1,50);
-        if(++count<threshold)return false;
+        // 0.25 is exactly representable; no per-hit rounding or allocation.
+        count+=combo?.25f:1f;
+        if(count<threshold)return false;
         count=threshold;skips=1;stunned=true;activationRound=round;activationOrder=order;
         lastRound=int.MinValue;lastOrder=int.MinValue;return true;
     }

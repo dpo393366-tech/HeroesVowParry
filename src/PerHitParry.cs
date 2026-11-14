@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
@@ -29,6 +29,7 @@ internal static class PerHitParry
         internal readonly Dictionary<IntPtr,Step> events=new();
         internal readonly Queue<Step> pending=new();
         internal bool busy,aggregate,analysed,abandoned;
+        internal bool groggyComboKnown,groggyCombo;
         internal Step activeStep;
         internal float inputRemaining=-1,inputBudget;
         internal GKHLLOOEEFN recoilVictim;
@@ -70,6 +71,30 @@ internal static class PerHitParry
     {
         if(a.strikes==null)a.strikes=new Plan{attack=a};
         return a.strikes;
+    }
+    // Count authored contacts, not the number of AOE victims/native callbacks.
+    // Cache once per card. A final aggregate damage packet can still be a combo.
+    internal static bool GroggyCombo(ImpactTiming.Attack a){
+        if(a==null)return false;
+        var p=Get(a);if(p.groggyComboKnown)return p.groggyCombo;
+        if(!a.debate){
+            Analyse(p);if(!p.analysed)return false;
+            int contacts=0;foreach(var s in p.steps)if(!s.nativeOnly)contacts++;
+            // Unknown native-only packets do not identify separate authored hits.
+            if(contacts==0)return false;
+            p.groggyCombo=contacts>1;
+        }else{
+            var events=a.speech?.m_debateAnimation?.DGBOCHKBFJG;
+            if(events==null)return false;
+            bool have=false;float first=0;
+            for(int i=0;i<Math.Min(4096,events.Count);i++){
+                var e=events[i];if(e==null||!e.EBHFFNHELFB||!float.IsFinite(e.DHBBBOOGECL))continue;
+                if(!have){have=true;first=e.DHBBBOOGECL;}
+                else if(!StrikeLedger.SameTime(first,e.DHBBBOOGECL)){p.groggyCombo=true;break;}
+            }
+            if(!have)return false;
+        }
+        p.groggyComboKnown=true;return p.groggyCombo;
     }
     static void Analyse(Plan p)
     {

@@ -24,7 +24,7 @@ internal static class EnemyGroggy
         internal GameObject bar;internal Image fill;internal RectTransform rect;
         internal GameObject stunBadge;
         internal readonly RectTransform[] stunStars=new RectTransform[3];
-        internal int shownCount=-1,shownThreshold=-1,shownSkips=-1;internal bool shownStunned;
+        internal float shownCount=-1;internal int shownThreshold=-1,shownSkips=-1;internal bool shownStunned;
         internal float shownMultiplier=-1,shownScale=-1,shownWidth=-1;
         internal Transform Root=>debate?debater.GetTransform():fighter.GetTransform();
         internal bool Alive=>debate?debater&&debater.m_debateAttribute.MKEIPLCMANH>0:fighter!=null&&fighter.GetAttribute().MKEIPLCMANH>0;
@@ -41,8 +41,8 @@ internal static class EnemyGroggy
     static void Report(string text){if(Time.unscaledTimeAsDouble<nextError)return;nextError=Time.unscaledTimeAsDouble+5;DuelCounters.Warn("그로기: "+text);}
     internal static void Install(DuelCounters mod,Harmony h){
         GroggyBuffs.Install(h);
-        enabled=mod.Config.Bind("EnemyGroggy","Enabled",true,"Enemy only: parried hit count causes one skipped turn and configurable incoming damage until the next actionable turn. Each combo hit counts; multiple defenders at the same hit count once. Reset after recovery or battle exit.");
-        threshold=mod.Config.Bind("EnemyGroggy","ParriedAttacksRequired",10f,new ConfigDescription("Parried hits required, including individual combo hits (whole number). Changes apply at the next successful parry; existing groggy recovers normally.",new AcceptableValueRange<float>(1f,50f)));
+        enabled=mod.Config.Bind("EnemyGroggy","Enabled",true,"Enemy only: parried hit count causes one skipped turn and configurable incoming damage until the next actionable turn. Single hits count 1; combo hits count 0.25 each; multiple defenders at the same hit count once. Reset after recovery or battle exit.");
+        threshold=mod.Config.Bind("EnemyGroggy","ParriedAttacksRequired",10f,new ConfigDescription("Parry points required: single hit = 1, each combo hit = 0.25. Changes apply at the next successful parry; existing groggy recovers normally.",new AcceptableValueRange<float>(1f,50f)));
         damageMultiplier=mod.Config.Bind("EnemyGroggy","DamageTakenMultiplier",1.3f,new ConfigDescription("Incoming damage multiplier during groggy. Changes apply to subsequent damage immediately.",new AcceptableValueRange<float>(1f,5f)));
         h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller),"SetPhase"),prefix:new HarmonyMethod(typeof(EnemyGroggy),nameof(FightPhase)){priority=Priority.First});
         h.Patch(AccessTools.DeclaredMethod(typeof(De_Controller),"SetPhase"),prefix:new HarmonyMethod(typeof(EnemyGroggy),nameof(DebatePhase)){priority=Priority.First});
@@ -59,7 +59,7 @@ internal static class EnemyGroggy
     static void CannotForceDodge(NFIDHHGKMDC __instance,ref bool __result){if(IsStunned(false,__instance.Pointer))__result=false;}
     internal static void Settings(){
         Panel.Switch("적 그로기 · 1턴 휴식 · 적의 공격 명중 시 누적 -1",enabled);
-        Panel.Slider("그로기 발동 패링 횟수 (연타 각 타격 포함)",threshold,1,50,1);
+        Panel.Slider("그로기 발동 누적량 (단타 1 / 연타 타당 0.25)",threshold,1,50,1);
         Panel.Slider("그로기 중 받는 피해 배율",damageMultiplier,1,5,.1f);
     }
     static void Forget(bool debate,IntPtr id){if(enemies.Remove((debate,id),out var e))Dispose(e);}
@@ -73,7 +73,7 @@ internal static class EnemyGroggy
         var side=a.debate?a.debater.m_debateAttribute.IBLKPJDLABN:a.fighter.GetAttribute().IBLKPJDLABN;
         if(attr==null||side!=FMHEOPMKFJB.Enemy)return;
         var e=Get(a.debate,attr.Value,a.fighter,a.debater);
-        bool began=e.meter.RecordAttack(ref counted,a.round,a.order,Threshold);
+        bool began=e.meter.RecordAttack(ref counted,a.round,a.order,Threshold,PerHitParry.GroggyCombo(a));
         if(step==null)a.groggyCounted=counted;else step.groggyCounted=counted;
         if(began){e.nextBuffClean=0;e.poseComplete=false;e.ending=false;DuelCounters.StabilityNote($"groggy begin enemy={attr} debate={a.debate} round={a.round} order={a.order} skips=1 threshold={Threshold} damage={DamageMultiplier:F1}");}
     }
