@@ -34,7 +34,7 @@ public sealed class DuelCounters : BasePlugin
     internal static float TimingAdvance=>timingAdvance?.Value??.2f;
     internal static float TimingWindow=>timingWindow?.Value??.25f;
     internal static float PostWindow=>postWindow?.Value??.25f;
-    internal static float GuardWindow=>guardWindow?.Value??.3f;
+    internal static float GuardWindow=>guardWindow?.Value??.25f;
     internal static float AttackLead=>attackLead?.Value??0f;
     internal static float FailedCooldown=>cooldown?.Value??.6f;
     internal static float SuccessCooldown=>successCooldown?.Value??0f;
@@ -143,7 +143,7 @@ public sealed class DuelCounters : BasePlugin
         timingAdvance=Config.Bind("Counter","TimingAdvanceSeconds",0f,new ConfigDescription("Move only the manual INPUT reference before actual contact. Warning lead is a separate setting.",new AcceptableValueRange<float>(0,2f)));
         timingWindow=Config.Bind("Counter","RealtimeTimingSeconds",.25f,new ConfigDescription("Accepted right-click interval before the shifted parry reference, real seconds; no added animation wait.",new AcceptableValueRange<float>(.05f,.6f)));
         postWindow=Config.Bind("Counter","PostContactSeconds",.25f,new ConfigDescription("Input accepted after the shifted reference; only any remainder beyond real contact defers damage and harmful effects.",new AcceptableValueRange<float>(0,.6f)));
-        guardWindow=Config.Bind("Counter","GuardHoldSeconds",.3f,new ConfigDescription("One successful right-click covers following contacts in the same card within this interval from the input; never extended by another hit.",new AcceptableValueRange<float>(0,.6f)));
+        guardWindow=Config.Bind("Counter","GuardHoldSeconds",.25f,new ConfigDescription("One successful right-click covers following contacts in the same card within this interval from the input; never extended by another hit.",new AcceptableValueRange<float>(0,.6f)));
         attackLead=Config.Bind("Counter","AttackStartDelaySeconds",0f,new ConfigDescription("Once before an attacking card begins, never once per hit; real seconds.",new AcceptableValueRange<float>(0,1f)));
         perStrike=Config.Bind("Counter","PerStrikeParry",true,"Separate counters per authored contact. Aggregate skills settle only unblocked integer damage shares at their native final impact; no skill replay.");
         window=Config.Bind("Counter","WindowSeconds",.5f,new ConfigDescription("Real seconds",new AcceptableValueRange<float>(.2f,3f)));
@@ -152,7 +152,7 @@ public sealed class DuelCounters : BasePlugin
         successCooldown=Config.Bind("Counter","SuccessfulCooldownSeconds",0f,new ConfigDescription("Optional cooldown after successful manual parry. Zero permits immediate next guard. Repeated contacts from the same press never extend it.",new AcceptableValueRange<float>(0,2f)));
         baseline=Config.Bind("Counter","BasePercent",10f,new ConfigDescription("Equal strength",new AcceptableValueRange<float>(0,30)));
         ceiling=Config.Bind("Counter","MaxPercent",10f,new ConfigDescription("AI upper bound",new AcceptableValueRange<float>(0,30)));
-        enemyCeiling=Config.Bind("Counter","EnemyMaxPercent",ceiling.Value,new ConfigDescription("Enemy automatic parry ceiling, adjustable from 0 to 100 percent. Starts at the existing cap; ally auto parry keeps MaxPercent.",new AcceptableValueRange<float>(0,100)));
+        enemyCeiling=Config.Bind("Counter","EnemyMaxPercent",60f,new ConfigDescription("Enemy automatic parry ceiling, adjustable from 0 to 100 percent. Defaults to 60%; ally auto parry keeps MaxPercent.",new AcceptableValueRange<float>(0,100)));
         flash=Config.Bind("Counter","YellowHighlight",true,"Flash beside an enemy immediately before damage, after attack animation starts");
         sound=Config.Bind("Counter","PlaySound",true,"Play the incoming attack cue and successful counter sound");
         recoverHalfAP=Config.Bind("Counter","RestoreHalfAPOnSuccess",true,"Gain 0.5 AP per successful parried hit on all defender sides. Native integer AP increases by 1 every two successes; credit resets at battle end/actor initialization and is discarded at cap.");

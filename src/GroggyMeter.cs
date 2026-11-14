@@ -1,4 +1,4 @@
-﻿namespace Vow.Counters;
+namespace Vow.Counters;
 
 // Per-enemy, per-battle state. Turn keys are native round/order pairs, not frames.
 internal sealed class GroggyMeter
@@ -34,9 +34,9 @@ internal sealed class GroggyMeter
     // Recovery removes the complete temporary state, not a division of a
     // previously multiplied stat. Repeated stuns never retain a damage factor.
     internal void Recover(){stunned=false;count=skips=0;lastSkip=false;activationRound=activationOrder=lastRound=lastOrder=int.MinValue;}
-    internal float EffectiveMultiplier(float configured=1.5f)=>!stunned?1f:
-        float.IsFinite(configured)?System.Math.Clamp(configured,1f,5f):1.5f;
-    internal int Damage(int value,float multiplier=1.5f){
+    internal float EffectiveMultiplier(float configured=1.3f)=>!stunned?1f:
+        float.IsFinite(configured)?System.Math.Clamp(configured,1f,5f):1.3f;
+    internal int Damage(int value,float multiplier=1.3f){
         if(value<=0)return value;
         multiplier=EffectiveMultiplier(multiplier);
         return (int)System.Math.Min(int.MaxValue,System.Math.Round(value*(double)multiplier,System.MidpointRounding.AwayFromZero));

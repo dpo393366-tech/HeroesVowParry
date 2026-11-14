@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 #if DuelCounters
 using System.Collections.Generic;
 using BepInEx.Configuration;
@@ -34,7 +34,7 @@ internal static class EnemyGroggy
     static ConfigEntry<bool> enabled;
     static ConfigEntry<float> threshold,damageMultiplier;
     static int Threshold=>Mathf.Clamp(Mathf.RoundToInt(threshold?.Value??10f),1,50);
-    static float DamageMultiplier=>Mathf.Clamp(damageMultiplier?.Value??1.5f,1f,5f);
+    static float DamageMultiplier=>Mathf.Clamp(damageMultiplier?.Value??1.3f,1f,5f);
     static double nextHud,nextError,nextPresentation;
     static Texture2D starTexture;static Sprite starSprite;
     internal static bool IsStunned(bool debate,IntPtr attr)=>enabled?.Value==true&&enemies.TryGetValue((debate,attr),out var e)&&e.meter.stunned;
@@ -43,7 +43,7 @@ internal static class EnemyGroggy
         GroggyBuffs.Install(h);
         enabled=mod.Config.Bind("EnemyGroggy","Enabled",true,"Enemy only: parried hit count causes one skipped turn and configurable incoming damage until the next actionable turn. Each combo hit counts; multiple defenders at the same hit count once. Reset after recovery or battle exit.");
         threshold=mod.Config.Bind("EnemyGroggy","ParriedAttacksRequired",10f,new ConfigDescription("Parried hits required, including individual combo hits (whole number). Changes apply at the next successful parry; existing groggy recovers normally.",new AcceptableValueRange<float>(1f,50f)));
-        damageMultiplier=mod.Config.Bind("EnemyGroggy","DamageTakenMultiplier",1.5f,new ConfigDescription("Incoming damage multiplier during groggy. Changes apply to subsequent damage immediately.",new AcceptableValueRange<float>(1f,5f)));
+        damageMultiplier=mod.Config.Bind("EnemyGroggy","DamageTakenMultiplier",1.3f,new ConfigDescription("Incoming damage multiplier during groggy. Changes apply to subsequent damage immediately.",new AcceptableValueRange<float>(1f,5f)));
         h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller),"SetPhase"),prefix:new HarmonyMethod(typeof(EnemyGroggy),nameof(FightPhase)){priority=Priority.First});
         h.Patch(AccessTools.DeclaredMethod(typeof(De_Controller),"SetPhase"),prefix:new HarmonyMethod(typeof(EnemyGroggy),nameof(DebatePhase)){priority=Priority.First});
         h.Patch(AccessTools.DeclaredMethod(typeof(NFIDHHGKMDC),"GOGFJJDCOOF"),prefix:new HarmonyMethod(typeof(EnemyGroggy),nameof(FightDamage)){priority=Priority.Last},postfix:new HarmonyMethod(typeof(EnemyGroggy),nameof(FightHit)));

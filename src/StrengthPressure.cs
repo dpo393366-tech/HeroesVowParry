@@ -30,8 +30,8 @@ internal static class StrengthPressure
     static bool fightFrozen,debateFrozen;
     static double nextError;static int logs;
     internal static void Install(DuelCounters mod,Harmony h){
-        maxSpeed=mod.Config.Bind("StrengthPressure","MaximumAttackSpeed",1.5f,new ConfigDescription("Relative multiplier at overwhelming matchup strength. Intermediate opponents interpolate from 1. Only attack animation through last contact is changed. 1 disables acceleration.",new AcceptableValueRange<float>(1,2)));
-        minWindow=mod.Config.Bind("StrengthPressure","MinimumParrySeconds",.21f,new ConfigDescription("Real seconds after cue at overwhelming strength. Intermediate opponents interpolate from the regular cue window. Cannot exceed that regular window; equal values disable shortening.",new AcceptableValueRange<float>(.05f,2)));
+        maxSpeed=mod.Config.Bind("StrengthPressure","MaximumAttackSpeed",1.2f,new ConfigDescription("Relative multiplier at overwhelming matchup strength. Intermediate opponents interpolate from 1. Only attack animation through last contact is changed. 1 disables acceleration.",new AcceptableValueRange<float>(1,2)));
+        minWindow=mod.Config.Bind("StrengthPressure","MinimumParrySeconds",.25f,new ConfigDescription("Real seconds after cue at overwhelming strength. Intermediate opponents interpolate from the regular cue window. Cannot exceed that regular window; equal values disable shortening.",new AcceptableValueRange<float>(.05f,2)));
         h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller),"SetRoundAndHero"),prefix:new HarmonyMethod(typeof(StrengthPressure),nameof(FreezeFight)));
         h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller),"SetPhase"),prefix:new HarmonyMethod(typeof(StrengthPressure),nameof(FreezeFight)));
         h.Patch(AccessTools.DeclaredMethod(typeof(De_Controller),"SetPhase"),prefix:new HarmonyMethod(typeof(StrengthPressure),nameof(FreezeDebate)));

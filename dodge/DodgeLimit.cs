@@ -26,7 +26,7 @@ public sealed class DodgeLimit:BasePlugin
     public override void Load(){
         Mod=this;
         Enabled=Config.Bind("Dodge","Enabled",true,"무투 회피 상한과 연속 회피 제한 사용. 아군·적군·짐승 모두 적용.");
-        Ceiling=Config.Bind("Dodge","MaxPercent",70,new ConfigDescription("최종 회피 확률 상한 (%)",new AcceptableValueRange<int>(0,70)));
+        Ceiling=Config.Bind("Dodge","MaxPercent",15,new ConfigDescription("최종 회피 확률 상한 (%)",new AcceptableValueRange<int>(0,70)));
         Consecutive=Config.Bind("Dodge","MaxConsecutiveDodges",4,new ConfigDescription("연속 회피 후 다음 공격은 회피 불가. 피격 시 초기화.",new AcceptableValueRange<int>(1,10)));
         Enabled.SettingChanged+=(_,_)=>Clear();
         Ceiling.SettingChanged+=(_,_)=>Clear();
@@ -41,7 +41,7 @@ public sealed class DodgeLimit:BasePlugin
             h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller.JFBIHELODLP),"MoveNext"),prefix:P(nameof(BeforeDamage)),postfix:P(nameof(HitResolved)));
             foreach(var name in new[]{"StartBattle","EndBattle","QuitBattle"})h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller),name),prefix:P(nameof(Clear)));
             h.Patch(AccessTools.DeclaredMethod(typeof(NFIDHHGKMDC),"LEJICHHIEGH"),postfix:P(nameof(Joining)));
-            Log.LogInfo("회피 제한 준비 완료: 최대 70%, 연속 4회 후 회피 불가. F11에서 조절.");
+            Log.LogInfo($"회피 제한 준비 완료: 최대 {Ceiling.Value}%, 연속 {Consecutive.Value}회 후 회피 불가. F11에서 조절.");
         }catch(Exception ex){h.UnpatchSelf();LoadError="회피 제한 초기화 실패 · 게임 구조 확인 필요";Log.LogWarning(LoadError+": "+ex);}
     }
     static HarmonyMethod P(string name)=>new(typeof(DodgeLimit),name);
