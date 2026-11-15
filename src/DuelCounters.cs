@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using BepInEx;
@@ -189,7 +189,7 @@ public sealed class DuelCounters : BasePlugin
             CardLatency.Install(h);CombatCost.Install(h);
 #endif
             ModControl.Initialize(this,h);
-            StabilityNote("Loaded standalone Parry 2.0.0: parry, groggy, timing, effects and combat recovery. Native sequential martial/debate; configured enemy attack/turn multipliers; no companion limit override. Aggregate damage still settles at native final contact.");
+            StabilityNote("Loaded standalone Parry 2.0.0 (native draw restored): parry, groggy, timing, effects and combat recovery. Native sequential martial/debate; configured enemy attack/turn multipliers; no companion limit override. Aggregate damage still settles at native final contact.");
         }catch(Exception ex){h.UnpatchSelf();Warn("패링 초기화 중단: "+ex);ModControl.InitializeUnavailable(this,ex);}
     }
     static void Settings()=>StandaloneSettings.Draw();
