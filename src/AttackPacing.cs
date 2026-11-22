@@ -4,19 +4,26 @@ using UnityEngine;
 
 namespace Vow.Counters;
 
-// GlobalUpdateCtrl writes timeScale from the speed button every frame. A one-off
-// timeScale assignment in a parry coroutine is overwritten by that native write.
+// Observe the clock write itself rather than detouring GlobalUpdateCtrl.Update,
+// whose entry is also used by the external editor's main-thread dispatcher.
 internal static class AttackPacing
 {
     static ImpactTiming.Attack owner;
     static float previousScale=1,appliedScale=1;
     static bool adjusted;
+    [ThreadStatic] static bool handlingScaleWrite;
     internal static string LastMeasurement="아직 측정된 공격 없음";
     internal static void Install(Harmony h){
         h.Patch(AccessTools.DeclaredMethod(typeof(Fi_Controller),"LoadAttackAnim"),postfix:new HarmonyMethod(typeof(AttackPacing),nameof(AnimationLoaded)));
         h.Patch(AccessTools.DeclaredMethod(typeof(De_Controller),"LoadAttackAnim"),postfix:new HarmonyMethod(typeof(AttackPacing),nameof(DebateAnimationLoaded)));
-        foreach(string name in new[]{"Update","DGKHPLBKLJB","LDKGPFEBOBD"})
+        h.Patch(AccessTools.PropertySetter(typeof(Time),nameof(Time.timeScale)),postfix:new HarmonyMethod(typeof(AttackPacing),nameof(AfterTimeScaleWrite)));
+        foreach(string name in new[]{"DGKHPLBKLJB","LDKGPFEBOBD"})
             h.Patch(AccessTools.DeclaredMethod(typeof(GlobalUpdateCtrl),name),postfix:new HarmonyMethod(typeof(AttackPacing),nameof(ApplySpeed)));
+    }
+    static void AfterTimeScaleWrite(){
+        if(owner==null||handlingScaleWrite)return;
+        handlingScaleWrite=true;
+        try{ApplySpeed();}finally{handlingScaleWrite=false;}
     }
     internal static bool Preparing(ImpactTiming.Attack a)=>a!=null && a.Valid() && a.preparing && !a.launchEntered;
     internal static bool BeforeLaunch(ImpactTiming.Attack a){

@@ -1,10 +1,10 @@
-# 입지전 — 무투·설전 패링 2.0.0
+# 입지전 — 무투·설전 패링 2.0.1
 
 기존 턴제 전투에서 **섬광·효과음에 맞춰 우클릭 또는 Q를 누르면 공격을 패링**합니다. 연타는 타격별로 판정하며, 적에게 패링을 누적하면 그로기를 유발합니다.
 
 ## 설치와 사용
 
-1. **HeroesVowParry-2.0.0.zip**을 받아 전체 압축을 풉니다. [ZIP 바로 다운로드](https://github.com/dpo393366-tech/HeroesVowParry/releases/download/v2.0.0/HeroesVowParry-2.0.0.zip)
+1. **HeroesVowParry-2.0.1.zip**을 받아 전체 압축을 풉니다. [ZIP 바로 다운로드](https://github.com/dpo393366-tech/HeroesVowParry/releases/download/v2.0.1/HeroesVowParry-2.0.1.zip)
 2. 게임을 종료하고 **Install.bat → 1 Install → 게임 폴더 선택**.
 3. 게임의 **MOD 불러오기 → 무투·설전 패링**에서 ON/OFF, **F11**에서 패링·회피 제한 설정.
 

@@ -19,7 +19,7 @@ class UpdaterTests {
   var repo=Path.GetFullPath(args[0]);var old=Path.GetFullPath(args[1]);var root=Path.Combine(Path.GetTempPath(),"ParryUpdateTest-"+Guid.NewGuid());
   string Dest(string n)=>Path.Combine(root,"BepInEx","plugins",n,n+".dll");
   var previous=new Payload{version="2.0.0",modules=Engine.Names.Select(n=>new Module{name=n,sha256=Engine.Hash(File.ReadAllBytes(Path.Combine(old,n+".dll")))}).ToArray()};
-  var next=new Payload{version="2.0.0",modules=Engine.Names.Select(n=>new Module{name=n,sha256=Engine.Hash(File.ReadAllBytes(Path.Combine(repo,"dist",n+".dll")))}).ToArray()};
+  var next=new Payload{version=JsonDocument.Parse(File.ReadAllText(Path.Combine(repo,"manifest.json"))).RootElement.GetProperty("version").GetString(),modules=Engine.Names.Select(n=>new Module{name=n,sha256=Engine.Hash(File.ReadAllBytes(Path.Combine(repo,"dist",n+".dll")))}).ToArray()};
   void Reset(){foreach(var n in Engine.Names){Directory.CreateDirectory(Path.GetDirectoryName(Dest(n)));File.Copy(Path.Combine(old,n+".dll"),Dest(n),true);}}
   Reset();var marker=Path.Combine(root,"BepInEx","patchers","HeroesVowParry","owner.json");Directory.CreateDirectory(Path.GetDirectoryName(marker));File.WriteAllText(marker,JsonSerializer.Serialize(previous));
   Check(Engine.OwnedInstallation(root),"Original standalone ownership");
@@ -27,7 +27,7 @@ class UpdaterTests {
   Reject(()=>Engine.Apply(root,zip,new string('0',64),_=>{}),"Corrupt download accepted");Check(Engine.InstalledMatches(root,previous),"Corrupt download modified DLL");
   Reject(()=>Engine.Apply(root,zip,hash,_=>{},i=>{if(i==1)throw new IOException("Injected interruption");}),"First write failure escaped");Check(Engine.InstalledMatches(root,previous),"Rollback both modules");
   Reject(()=>Engine.Apply(root,zip,hash,_=>{},i=>{if(i==2)throw new IOException("Injected second write failure");}),"Second write failure escaped");Check(Engine.InstalledMatches(root,previous),"Second rollback");
-  Engine.Apply(root,zip,hash,_=>{});Check(Engine.InstalledMatches(root,next),"Same-version update failed");Check(File.ReadAllText(cfg)=="user-settings","Settings replaced");
+  Engine.Apply(root,zip,hash,_=>{});Check(Engine.InstalledMatches(root,next),"Release update failed");Check(File.ReadAllText(cfg)=="user-settings","Settings replaced");
   Check(!Engine.OwnedInstallation(root),"Unrecorded DLL replaced other distribution");
   var cache=Path.Combine(root,"BepInEx","cache","HeroesVowParryUpdate");File.WriteAllText(Path.Combine(cache,"installed.json"),JsonSerializer.Serialize(new{hash,payload=next}));Check(Engine.OwnedInstallation(root),"Receipt ownership");
   Engine.Apply(root,zip,hash,_=>{},_=>throw new Exception("Unnecessary replacement"));count++;
@@ -36,7 +36,7 @@ class UpdaterTests {
   File.WriteAllText(Path.Combine(cache,"pending.json"),JsonSerializer.Serialize(new Journal{folder="ParryAuto-test",modules=previous.modules}));File.Copy(Path.Combine(repo,"dist","DuelCounters.dll"),Dest("DuelCounters"),true);
   Engine.Recover(root,_=>{});Check(Engine.InstalledMatches(root,previous),"Interrupted transaction not restored");Check(!File.Exists(Path.Combine(cache,"pending.json")),"Journal left behind");
   Reject(()=>Engine.SafePath(root,Path.Combine(root,"..","outside")),"Path escape allowed");
-  var release=Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new{draft=false,prerelease=false,assets=new[]{new{name="HeroesVowParry-update.zip",browser_download_url=Engine.DownloadPrefix+"v2.0.0/HeroesVowParry-update.zip",digest="sha256:"+hash}}}));
+  var release=Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new{draft=false,prerelease=false,assets=new[]{new{name="HeroesVowParry-update.zip",browser_download_url=Engine.DownloadPrefix+"v"+next.version+"/HeroesVowParry-update.zip",digest="sha256:"+hash}}}));
   Check(Engine.ReadRelease(release).hash==hash,"GitHub metadata parse");Reject(()=>Engine.ReadRelease(Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(release).Replace(Engine.DownloadPrefix,"https://untrusted.example/"))),"Foreign host allowed");
   using(var client=new HttpClient(new Handler())){
    Check(Engine.Get(client,"https://example.test",4,CancellationToken.None).GetAwaiter().GetResult().Length==4,"HTTP read");

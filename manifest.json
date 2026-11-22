@@ -1,11 +1,11 @@
 {
   "name": "HeroesVowParry",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "modules": [
     {
       "name": "DuelCounters",
       "file": "dist/DuelCounters.dll",
-      "sha256": "27EEBB06CB24CBAA5638BFC00E7E36769673193AC408012FDC4ED3E6AE391CEF"
+      "sha256": "09089B67DC7F08780E03E1E3E8F263A4363D8DD870138DF9BFEE026B933F8EF9"
     },
     {
       "name": "DodgeLimit",
